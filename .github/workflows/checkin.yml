@@ -1,4 +1,5 @@
 name: AnyRouter 自动签到
+# 活跃更新: 2026-10-08 (重置 GitHub Actions 60天不活跃状态)
 on:
   schedule:
     - cron: '0 */6 * * *'
