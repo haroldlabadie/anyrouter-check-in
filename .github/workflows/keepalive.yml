@@ -1,0 +1,31 @@
+name: 自动保活 (Keepalive)
+
+on:
+  schedule:
+    # 每月 1 号和 15 号 UTC 00:00 运行一次，确保仓库不会超过 60 天无活动
+    - cron: '0 0 1,15 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 保持仓库活跃 (更新时间戳)
+        run: |
+          mkdir -p .github
+          echo "Last keepalive: $(date -u)" > .github/keepalive.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          git commit -m "chore: keep repository active [skip ci]" || exit 0
+          git push || echo "git push fallback"
+
+      - name: 保持工作流启用状态 (GitHub API)
+        uses: WaterLemons2k/scheduled-workflow-activity-action@v2
+        if: always()
